@@ -4,14 +4,17 @@
 	"version": "0.1.0",
 	"description": "Track your Salesforce tasks on your New tab!",
 	"background": {
-		"scripts": ["background.js"]
+		"scripts": ["background.js"],
+		"persistent": true
 	},
 	"browser_action": {
 		"default_icon" : "images/sf-tasktab16.png",
-		"default_title" : "Salesforce TaskTab"
+		"default_title" : "Salesforce TaskTab",
+		"default_popup": "tasks.html"
 	},
 	"permissions": [
 		"tabs",
+		"storage",
 		"https://*.force.com/*",
 		"https://*.salesforce.com/*",
 		"https://*.cloudforce.com/*"
