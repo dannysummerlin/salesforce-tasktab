@@ -1,0 +1,35 @@
+{
+	"manifest_version": 2,
+	"name": "Salesforce TaskTab",
+	"version": "0.1.0",
+	"description": "Track your Salesforce tasks on your New tab!",
+	"background": {
+		"scripts": ["background.js"]
+	},
+	"browser_action": {
+		"default_icon" : "images/sf-tasktab16.png",
+		"default_title" : "Salesforce TaskTab"
+	},
+	"permissions": [
+		"tabs",
+		"https://*.force.com/*",
+		"https://*.salesforce.com/*",
+		"https://*.cloudforce.com/*"
+	],
+	"icons": {
+		"128": "images/sf-tasktab128.png",
+		"48": "images/sf-tasktab48.png",
+		"16": "images/sf-tasktab16.png"
+	},
+	 "chrome_url_overrides" : {
+		"newtab": "tasks.html"
+	},
+	"commands": {
+		"_execute_browser_action": {
+			"description": "Open the Salesforce Task popup",
+			"suggested_key": {
+				"default": "Alt+Shift+T"
+			}
+		}
+	}
+}
