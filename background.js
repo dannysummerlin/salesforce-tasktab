@@ -4,7 +4,8 @@ var tasks = {},
 	orgId, // retrieve or allow multiple?
 	sessionId,
 	apiUrl,
-	userId
+	userId,
+	lastUpdateTimestamp
 const regMatchOrgId = /sid=([\w\d]+)/
 const regMatchSid = /sid=([a-zA-Z0-9\.\!]+)/
 const SFAPI_VERSION = 'v40.0'
@@ -29,7 +30,7 @@ let promiseHttp = (args)=>{
 			return data
 	})
 }
-let getSessionInfo = ()=>{
+let getSessionInfo = (resolve)=>{
 	chrome.cookies.getAll({}, (all)=>{
 		all.forEach((c)=>{
 			if(c.domain.includes("force.com") && (c.value.includes(orgId) || c.name == "disco")) {
@@ -41,9 +42,12 @@ let getSessionInfo = ()=>{
 			}
 		})
 	})
+	if(resolve)
+		resolve()
 }
 let getUserId = ()=>userId
-let createTask = function(subject) {
+let completeTask = taskId=>{}
+let createTask = subject=>{
 	if(subject != "" && getUserId()) {
 		promiseHttp({
 			method: "POST",
@@ -54,10 +58,8 @@ let createTask = function(subject) {
 		.then(function (reply) {
 			if(reply.errors.length == 0) {
 				// commands["Go To Created Task"] = {url: "/"+ reply.id }
-			} else {
+			} else
 				log(response)
-			}
-			hideLoadingIndicator()					
 		})
 	}
 }
@@ -71,19 +73,26 @@ let fetchTasks = ()=>{
 		for (var i = 0; i < success.records.length; i++) {
 			success.records[i].Subject
 		}
+		lastUpdateTimestamp = new Date
 	}).catch(function(error) {
-		hideLoadingIndicator()
-		log(error)
-		addError(error)
+		Promise(resolve=>getSessionInfo(resolve)).then(fetchTasks)
 	})
 }
+let refreshTaskList = tab=>
+	chrome.tabs.sendMessage(tab.id, {action: "refreshTaskList", tasks: tasks}, response => console.log(response))
 
-chrome.commands.onCommand.addListener((command)=>{
-	switch(command) {
-	}
+let init = tab=>{
+	return new Promise(resolve=>resolve(getSessionInfo())).then(fetchTasks).then(refreshTaskList.bind(null, tab))
+}
+chrome.tabs.onCreated.addListener(tab=>{
+	init(tab)
 })
-chrome.runtime.onMessage.addListener((request, sender, sendResponse)=>{
-	switch(request.action) {
-	}
-	return true
-})
+// chrome.commands.onCommand.addListener((command)=>{
+// 	switch(command) {
+// 	}
+// })
+// chrome.runtime.onMessage.addListener((request, sender, sendResponse)=>{
+// 	switch(request.action) {
+// 	}
+// 	return true
+// })
