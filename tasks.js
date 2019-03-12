@@ -1,34 +1,37 @@
 let baseUrl,
 	selectedTheme
-let baseTheme = {
-	secondary: "rgba(27,95,158,1)",
-	secondaryTransparent: "rgba(27,95,158,0.05)",
-	primary: "rgba(176,196,223,1)",
-	backgroundImage: "linear-gradient(0deg, rgba(176,196,223,1) 70%, rgba(27,95,158,1) 100%)",
-	iconWidth: "1.2rem",
-	iconHigh: "\235f",
-	iconNormal: "\20dd",
-	iconLow: "\25cc"
-}
-let emojiTheme = {
-	secondary: "rgba(158,27,95,1)",
-	secondaryTransparent: "rgba(158,27,95,0.05)",
-	primary: "rgba(223,176,196,1)",
-	backgroundImage: "linear-gradient(0deg, rgba(223,176,196,1) 70%, rgba(158,27,95,1) 100%)",
-	iconWidth: "1.6rem",
-	iconHigh: "\1f632",
-	iconNormal: "\1f642",
-	iconLow: "\1f636"
+let themes = {
+	"base": {
+		secondary: "rgba(27,95,158,1)",
+		secondaryTransparent: "rgba(27,95,158,0.05)",
+		primary: "rgba(176,196,223,1)",
+		backgroundImage: "linear-gradient(0deg, rgba(176,196,223,1) 70%, rgba(27,95,158,1) 100%)",
+		iconWidth: "1.2rem",
+		iconHigh: "\235f",
+		iconNormal: "\20dd",
+		iconLow: "\25cc"
+	},
+	"emoji": {
+		secondary: "rgba(158,27,95,1)",
+		secondaryTransparent: "rgba(158,27,95,0.05)",
+		primary: "rgba(223,176,196,1)",
+		backgroundImage: "linear-gradient(0deg, rgba(223,176,196,1) 70%, rgba(158,27,95,1) 100%)",
+		iconWidth: "1.6rem",
+		iconHigh: "\1f632",
+		iconNormal: "\1f642",
+		iconLow: "\1f636"
+	}
 }
 chrome.runtime.onMessage.addListener((request, sender, sendResponse)=>{
 	let response = {}
 	switch(request.action) {
 		case "refreshTaskList":
 			baseUrl = request.baseUrl
+			applyTheme(request.theme)
 			refreshTaskList(request.tasks)
-			sendResponse(new Date)
 			break
 	}
+	sendResponse({updatedOn:"1"})
 	return true
 })
 let refreshTaskList = tasks=>{
@@ -47,7 +50,6 @@ let refreshTaskList = tasks=>{
 		list.appendChild(listItem)
 	}
 	document.getElementById("loader").style.display = "none"
-	applyTheme(baseTheme)
 	let taskCount = document.getElementById('taskCount')
 	taskCount.innerHTML = "<span>" + tasks.length + "</span> Open Tasks"
 	let lastUpdated = document.getElementById("lastUpdated")
@@ -67,4 +69,15 @@ let applyTheme = theme=>{
 	root.style.setProperty('--iconHigh', theme.iconHigh)
 	root.style.setProperty('--iconNormal', theme.iconNormal)
 	root.style.setProperty('--iconLow', theme.iconLow)
+}
+let save = ()=>{
+	let storedOrgId = document.getElementById("storedOrgId")
+	let storedTheme = document.getElementById("storedTheme")
+	let storedOrderBy = document.getElementById("storedOrderBy")
+	chrome.runtime.sendMessage({
+		action:'storeSettings',
+		storedOrgId: storedOrgId,
+		storedTheme: storedTheme,
+		storedOrderBy: storedOrderBy
+	}, response=>{})
 }

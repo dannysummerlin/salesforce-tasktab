@@ -20,8 +20,14 @@
 				<form>
 					<ul>
 						<li>
-							<input type="text" id="storedOrgId" name="storedOrgId"/>
+							<input type="text" placeholder="Enter your Salesforce Organization ID" id="storedOrgId" name="storedOrgId"/>
 							<label for="storedOrgId">Organization Id</label>
+							<input type="hidden" placeholder="Choose your theme" id="storedTheme" name="storedTheme" value="base"/>
+							<input type="hidden" placeholder="Choose your theme" id="storedOrderBy" name="storedOrderBy" value="Priority Desc"/>
+							<!-- <label for="storedTheme">Theme</label> -->
+						</li>
+						<li>
+							<button onclick="save()">Update Settings</button>
 						</li>
 					</ul>
 				</form>
