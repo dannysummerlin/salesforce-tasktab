@@ -1,50 +1,63 @@
+:root {
+	--secondary: rgba(27,95,158,1);
+	--secondaryTransparent: rgba(27,95,158,0.05);
+	--primary: rgba(176,196,223,1);
+	--iconWidth: 1.2rem;
+	--iconHigh: "\235f";
+	--iconNormal: "\20dd";
+	--iconLow: "\25cc";
+}
 body {
-    background: rgb(176,196,223);
-	transition: .2s
+    background: var(--primary);
+    transition-property: backgroundImage;
+	transition-duration: .2s
 }
 #wrapper {
 	width:90%;
-	margin:0 auto;
+	margin:1rem auto;
 	display:flex;
 	flex-flow: row wrap;
 }
-#wrapper:before {content: "\2601"; font-size:5rem;color:rgb(176,196,223);}
+#wrapper:before {content: "\2601"; font-size:10rem;margin-right:-1rem;margin-left:-4rem;color:var(--primary);}
 #infoBox, #taskList {
     border-radius: .25rem;
     background:white;
 	opacity: 0;
-	transition: .2s;
+	transition-property: opacity;
+	transition-duration: .2s;
+	margin:0;
 }
 #infoBox {
-	height:3rem;
-	padding:2rem;
-	margin:auto 0 auto 1rem;
+	text-align: center;
+	height:100%;
+	padding: 1rem;
+	margin-left: 1rem;
 	flex:1 0;
 }
 #taskList {
 	flex: 5 0;
-    font-size:1.1rem;
-    line-height:1.6rem;
-    padding: 0;
+	font-size:1.1rem;
+	line-height:1.6rem;
+	padding: 0;
 }
+#taskCount {font-size:1.8rem;margin:0;color:var(--primary);}
+#taskCount span {color:var(--secondary);}
+#lastUpdated {color:var(--primary);}
 li {
     list-style:none;
     border-bottom:1px solid #0002;
 }
-li a { padding:0.4rem;color:rgb(0, 95, 178);display: block }
-li a:hover {background: rgba(27,95,158,0.05)}
-li span {float:right; padding:0 4px}
-
+li a { padding:0.4rem;color:var(--secondary);display: block }
+li a:hover {background: var(--secondaryTransparent)}
+li span {float:right; padding:0 4px;color:var(--secondary);}
+/*
+#circle1 {color:var(--primary);}
+#circle2 {color:var(--secondary);}
+*/
 .priority-high a:before,
 .priority-normal a:before,
-.priority-low a:before {width: 1.2rem;font-size:1rem; display: inline-block;}
-.priority-high-emoji a:before,
-.priority-normal-emoji a:before,
-.priority-low-emoji a:before {width: 1.6rem;font-size:1rem; display: inline-block;}
+.priority-low a:before {width: var(--iconWidth);font-size:1rem; display: inline-block;}
 
-.priority-high a:before {content: "\235f";}
-.priority-normal a:before {content: "\20dd";}
-.priority-low a:before {content: "\25cc";}
-.priority-high-emoji a:before {content: "\1f632"; }
-.priority-normal-emoji a:before {content:"\1f642";}
-.priority-low-emoji a:before {content: "\1f636";}
+.priority-high a:before {content: var(--iconHigh);}
+.priority-normal a:before {content: var(--iconNormal);}
+.priority-low a:before {content: var(--iconLow);}

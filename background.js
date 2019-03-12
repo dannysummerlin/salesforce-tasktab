@@ -1,9 +1,10 @@
 const debug = true
 var log = msg=>{if(debug) console.log(msg)}
 var storedTasks = {},
-	storedOrgId = "00D41000000f27H", // multiple later
-	storedBaseUrl = "jstart.lightning.force.com"
+	storedOrderBy = "Priority desc",
+	storedOrgId = "00D41000000f27H" // multiple later
 var sessionId,
+	baseUrl,
 	apiUrl,
 	userId,
 	lastUpdateTimestamp,
@@ -37,29 +38,24 @@ var getSessionInfo = tab=>{
 log("get session info")
 	return new Promise(resolve => {
 		resolve(chrome.cookies.getAll({}, all=>{
-			if(sessionId == null) {
+			if(sessionId == null || userId == null) {
 				all.forEach((c)=>{
-					if(c.domain.includes("force.com") && (c.value.includes(storedOrgId) || c.name == "disco")) {
+					if(c.domain.includes("salesforce.com") && c.value.includes(storedOrgId)) {
 						if(c.name == 'sid' && c.domain.includes("salesforce")) {
 							sessionId = c.value
 							apiUrl = c.domain
 						}
-						else if(c.name == 'disco') {// && c.value.includes(storedOrgId)) {
-							userId = c.value.match(/005[\w\d]+/)[0]
-						}
 					}
 				})
-// need to manually get userId because Salesforce swaps out disco
-log(userId)
-				if(userId == null) {
-					// just get "/services/data/v40.0/"
-					// then read "identity" : "https://login.salesforce.com/id/00D41000000f27HEAQ/00541000000gF40AAE"
-					// promiseHttp({}
-				}
-				if(apiUrl != null)
-					fetchTasks().then(refreshTaskList.bind(null, tab))
-				else
-					getSessionInfo(tab)
+				promiseHttp({url: "https://" + apiUrl + '/services/data/' + SFAPI_VERSION, headers:
+					{"Authorization": "Bearer " + sessionId, "Accept": "application/json"}
+				}).then(response => {
+					userId = response.identity.match(/005.*/)[0]
+					if(apiUrl != null)
+						fetchTasks().then(refreshTaskList.bind(null, tab))
+					else
+						getSessionInfo(tab)
+				})
 			}
 			else
 				fetchTasks().then(refreshTaskList.bind(null, tab))
@@ -87,7 +83,7 @@ var fetchTasks = ()=>{
 log("fetch tasks")
 	return new Promise(resolve => {
 		let args = {
-			url: "https://" + apiUrl + "/services/data/" + SFAPI_VERSION + "/query/?q=SELECT+Id,+Subject,+Priority,+ActivityDate+FROM+Task+WHERE+OwnerId='" + getUserId() + "'+and+isclosed=false",
+			url: "https://" + apiUrl + "/services/data/" + SFAPI_VERSION + "/query/?q=SELECT+Id,+Subject,+Priority,+ActivityDate+FROM+Task+WHERE+OwnerId='" + getUserId() + "'+and+isclosed=false+order+by+" + storedOrderBy.replace(" ","+"),
 			headers: {"Authorization": "Bearer " + sessionId, "Content-Type": "application/json" }
 		}
 		resolve(promiseHttp(args))
@@ -106,7 +102,7 @@ log(error)
 	})
 }
 var refreshTaskList = tab=>
-	chrome.tabs.sendMessage(tab.id, {action: "refreshTaskList", tasks: storedTasks, baseUrl: storedBaseUrl}, response => console.log(response))
+	chrome.tabs.sendMessage(tab.id, {action: "refreshTaskList", tasks: storedTasks, baseUrl: apiUrl}, response => console.log(response))
 
 var completeTask = taskId=>{}
 
