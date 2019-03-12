@@ -27,6 +27,7 @@ let refreshTaskList = tasks=>{
 		listItem.appendChild(taskLink)
 		list.appendChild(listItem)
 	}
+	document.getElementById("loader").style.display = "none"
 	let lastUpdated = document.getElementById("lastUpdated")
 	lastUpdated.innerText = (new Date).toLocaleString()
 	let taskCount = document.getElementById('taskCount')
