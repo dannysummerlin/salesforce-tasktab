@@ -1,0 +1,50 @@
+body {
+    background: rgb(176,196,223);
+	transition: .2s
+}
+#wrapper {
+	width:90%;
+	margin:0 auto;
+	display:flex;
+	flex-flow: row wrap;
+}
+#wrapper:before {content: "\2601"; font-size:5rem;color:rgb(176,196,223);}
+#infoBox, #taskList {
+    border-radius: .25rem;
+    background:white;
+	opacity: 0;
+	transition: .2s;
+}
+#infoBox {
+	height:3rem;
+	padding:2rem;
+	margin:auto 0 auto 1rem;
+	flex:1 0;
+}
+#taskList {
+	flex: 5 0;
+    font-size:1.1rem;
+    line-height:1.6rem;
+    padding: 0;
+}
+li {
+    list-style:none;
+    border-bottom:1px solid #0002;
+}
+li a { padding:0.4rem;color:rgb(0, 95, 178);display: block }
+li a:hover {background: rgba(27,95,158,0.05)}
+li span {float:right; padding:0 4px}
+
+.priority-high a:before,
+.priority-normal a:before,
+.priority-low a:before {width: 1.2rem;font-size:1rem; display: inline-block;}
+.priority-high-emoji a:before,
+.priority-normal-emoji a:before,
+.priority-low-emoji a:before {width: 1.6rem;font-size:1rem; display: inline-block;}
+
+.priority-high a:before {content: "\235f";}
+.priority-normal a:before {content: "\20dd";}
+.priority-low a:before {content: "\25cc";}
+.priority-high-emoji a:before {content: "\1f632"; }
+.priority-normal-emoji a:before {content:"\1f642";}
+.priority-low-emoji a:before {content: "\1f636";}

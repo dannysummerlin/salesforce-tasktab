@@ -1,8 +1,9 @@
 const debug = true
 var log = msg=>{if(debug) console.log(msg)}
-var tasks = {},
-	orgId = "00D540000000kjy", // retrieve or allow multiple?
-	sessionId,
+var storedTasks = {},
+	storedOrgId = "00D41000000f27H", // multiple later
+	storedBaseUrl = "jstart.lightning.force.com"
+var sessionId,
 	apiUrl,
 	userId,
 	lastUpdateTimestamp,
@@ -12,14 +13,15 @@ const regMatchSid = /sid=([a-zA-Z0-9\.\!]+)/
 const SFAPI_VERSION = 'v40.0'
 
 var promiseHttp = (args)=>{
-	args = Object.assign({ targetUrl: "", type: "json", headers: {}, data: {}, method: "GET"}, args)
+	args = Object.assign({ url: "", type: "json", headers: {}, data: {}, method: "GET"}, args)
+log(args.method + ": " + args.url)
 	let request = { method: args.method, headers: args.headers }
-	if(args.targetUrl.substring(0,5) != "https")
-		args.targetUrl = "https://" + args.targetUrl
+	if(args.url.substring(0,5) != "https")
+		args.url = "https://" + args.url
 	if(Object.keys(args.data).length > 0)
 		request.body = JSON.stringify(args.data)
 
-	return fetch(args.targetUrl, request).then((response)=>{
+	return fetch(args.url, request).then((response)=>{
 		switch(args.type) {
 			case "json": return response.clone().json()
 			case "document": return response.clone().text()
@@ -31,24 +33,40 @@ var promiseHttp = (args)=>{
 			return data
 	})
 }
-var getSessionInfo = ()=>{
+var getSessionInfo = tab=>{
 log("get session info")
 	return new Promise(resolve => {
-		resolve(chrome.cookies.getAll({}, (all)=>{
-			all.forEach((c)=>{
-				if(c.domain.includes("force.com") && (c.value.includes(orgId) || c.name == "disco")) {
-					if(c.name == 'sid') {
-						sessionId = c.value
-						apiUrl = c.domain
+		resolve(chrome.cookies.getAll({}, all=>{
+			if(sessionId == null) {
+				all.forEach((c)=>{
+					if(c.domain.includes("force.com") && (c.value.includes(storedOrgId) || c.name == "disco")) {
+						if(c.name == 'sid' && c.domain.includes("salesforce")) {
+							sessionId = c.value
+							apiUrl = c.domain
+						}
+						else if(c.name == 'disco') {// && c.value.includes(storedOrgId)) {
+							userId = c.value.match(/005[\w\d]+/)[0]
+						}
 					}
-					else if(c.name == 'disco') userId = c.value.match(/005[\w\d]+/)[0]
+				})
+// need to manually get userId because Salesforce swaps out disco
+log(userId)
+				if(userId == null) {
+					// just get "/services/data/v40.0/"
+					// then read "identity" : "https://login.salesforce.com/id/00D41000000f27HEAQ/00541000000gF40AAE"
+					// promiseHttp({}
 				}
-			})
+				if(apiUrl != null)
+					fetchTasks().then(refreshTaskList.bind(null, tab))
+				else
+					getSessionInfo(tab)
+			}
+			else
+				fetchTasks().then(refreshTaskList.bind(null, tab))
 		})
 	)})
 }
 var getUserId = ()=>userId
-var completeTask = taskId=>{}
 var createTask = subject=>{
 	if(subject != "" && getUserId()) {
 		promiseHttp({
@@ -69,16 +87,12 @@ var fetchTasks = ()=>{
 log("fetch tasks")
 	return new Promise(resolve => {
 		let args = {
-			url: "https://" + apiUrl + "/services/data/" + SFAPI_VERSION + "/tooling/query/?q=SELECT+Id,+Subject+FROM+Task+WHERE+OwnerId='" + getUserId() + "'+and+isclosed=false",
+			url: "https://" + apiUrl + "/services/data/" + SFAPI_VERSION + "/query/?q=SELECT+Id,+Subject,+Priority,+ActivityDate+FROM+Task+WHERE+OwnerId='" + getUserId() + "'+and+isclosed=false",
 			headers: {"Authorization": "Bearer " + sessionId, "Content-Type": "application/json" }
 		}
 		resolve(promiseHttp(args))
 	}).then(function(success) {
-log(success)
-		let numberOfUserRecords = success.records.length
-		for (var i = 0; i < success.records.length; i++) {
-			success.records[i].Subject
-		}
+		storedTasks = success.records
 		lastUpdateTimestamp = new Date
 		tryCount = 0
 	}).catch(function(error) {
@@ -86,13 +100,15 @@ log(success)
 log(error)
 			tryCount++
 			return new Promise(resolve=>resolve(getSessionInfo)).then(fetchTasks)
+		} else {
+			chrome.tabs.sendMessage(tab.id, {action: "loadingError", error: "Error loading Salesforce Tasks"}, response => console.log("error"))	
 		}
 	})
 }
 var refreshTaskList = tab=>
-	chrome.tabs.sendMessage(tab.id, {action: "refreshTaskList", tasks: tasks}, response => console.log(response))
+	chrome.tabs.sendMessage(tab.id, {action: "refreshTaskList", tasks: storedTasks, baseUrl: storedBaseUrl}, response => console.log(response))
 
-var init = tab=>{
-	getSessionInfo().then(fetchTasks).then(refreshTaskList.bind(null, tab))
-}
+var completeTask = taskId=>{}
+
+var init = tab=>getSessionInfo(tab)
 chrome.tabs.onCreated.addListener(tab=>init(tab))
