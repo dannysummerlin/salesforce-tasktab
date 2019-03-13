@@ -67,6 +67,10 @@ log("get session info")
 var fetchTasks = (oId)=>{
 log("fetch tasks")
 	return new Promise(resolve => {
+		if(storedOrderBy == null)
+			storedOrderBy = "Priority desc"
+		if(storedTheme == null)
+			storedTheme = "base"
 		let args = {
 			url: "https://" + orgs[oId].apiUrl + "/services/data/" + SFAPI_VERSION + "/query/?q=SELECT+Id,+Subject,+Priority,+ActivityDate+FROM+Task+WHERE+OwnerId='" + orgs[oId].userId + "'+and+isclosed=false+order+by+" + storedOrderBy.replace(" ","+"),
 			headers: {"Authorization": "Bearer " + orgs[oId].sessionId, "Content-Type": "application/json" }
