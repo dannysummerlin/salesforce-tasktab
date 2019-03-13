@@ -58,13 +58,13 @@ let refreshTaskList = tasks=>{
 let applyTheme = theme=>{
 	selectedTheme = theme
 	let root = document.documentElement
-	document.getElementById("bodyTag").style.backgroundImage = theme.backgroundImage
+	document.body.style.backgroundImage = theme.backgroundImage
 	root.style.setProperty('--secondary', theme.secondary)
 	root.style.setProperty('--secondaryTransparent', theme.secondaryTransparent)
 	root.style.setProperty('--primary', theme.primary)
 	root.style.setProperty('--backgroundImage', theme.backgroundImage)
 	root.style.setProperty('--iconWidth', theme.iconWidth)
-	root.style.setProperty('--iconHigh', theme.iconHigh)
-	root.style.setProperty('--iconNormal', theme.iconNormal)
-	root.style.setProperty('--iconLow', theme.iconLow)
+	// root.style.setProperty('--iconHigh', theme.iconHigh)
+	// root.style.setProperty('--iconNormal', theme.iconNormal)
+	// root.style.setProperty('--iconLow', theme.iconLow)
 }

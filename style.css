@@ -10,7 +10,8 @@
 body {
     background: var(--primary);
     transition-property: backgroundImage;
-	transition-duration: .2s
+	transition-duration: .2s;
+	background-repeat: no-repeat;
 }
 #wrapper {
 	width:90%;

@@ -1,13 +1,8 @@
-const debug = true
+const debug = false
 var log = msg=>{if(debug) console.log(msg)}
-var storedTasks = {},
-	storedOrderBy = "Priority desc",
-	storedOrgId = "00D41000000f27H" // multiple later
-var sessionId,
-	baseUrl,
-	apiUrl,
-	userId,
-	lastUpdateTimestamp,
+
+var storedOrderBy = "Priority desc"
+var orgs = {},
 	tryCount = 0
 const regMatchOrgId = /sid=([\w\d]+)/
 const regMatchSid = /sid=([a-zA-Z0-9\.\!]+)/
@@ -34,77 +29,83 @@ log(args.method + ": " + args.url)
 			return data
 	})
 }
-var getSessionInfo = tab=>{
+var init = tab=>{
 log("get session info")
 	return new Promise(resolve => {
 		resolve(chrome.cookies.getAll({}, all=>{
-			if(sessionId == null || userId == null) {
-				all.forEach((c)=>{
-					if(c.domain.includes("salesforce.com") && c.value.includes(storedOrgId)) {
-						if(c.name == 'sid' && c.domain.includes("salesforce")) {
-							sessionId = c.value
-							apiUrl = c.domain
+			all.forEach((c)=>{
+				if(c.domain.includes("salesforce.com")) {
+					if(c.name == 'sid' && c.domain.includes("salesforce")) {
+						orgId = c.value.match(/00D\w+/)[0]
+						if(orgs[orgId] == null) {
+							orgs[orgId] = {
+								orgId: orgId,
+								sessionId: c.value,
+								apiUrl: c.domain,
+								userId: null,
+								lastUpdateTimestamp: null,
+								tasks: []
+							}
 						}
 					}
-				})
-				promiseHttp({url: "https://" + apiUrl + '/services/data/' + SFAPI_VERSION, headers:
-					{"Authorization": "Bearer " + sessionId, "Accept": "application/json"}
-				}).then(response => {
-					userId = response.identity.match(/005.*/)[0]
-					if(apiUrl != null)
-						fetchTasks().then(refreshTaskList.bind(null, tab))
-					else
-						getSessionInfo(tab)
-				})
+				}
+			})
+			for(oId in orgs) {
+				if(orgs[oId].userId == null)
+					promiseHttp({url: "https://" + orgs[oId].apiUrl + '/services/data/' + SFAPI_VERSION, headers:
+						{"Authorization": "Bearer " + orgs[oId].sessionId, "Accept": "application/json"}
+					}).then(response => {
+						orgs[oId].userId = response.identity.match(/005.*/)[0]
+						fetchTasks(oId).then(refreshTaskList.bind(null, tab, oId))
+					})
+				else  // always fetches new right now, going to implement some kind of caching even though it runs pretty fast as is
+					fetchTasks(oId).then(refreshTaskList.bind(null, tab, oId))
 			}
-			else
-				fetchTasks().then(refreshTaskList.bind(null, tab))
-		})
-	)})
+		}))
+	})
 }
-var getUserId = ()=>userId
-var createTask = subject=>{
-	if(subject != "" && getUserId()) {
-		promiseHttp({
-			method: "POST",
-			url: "https://" + apiUrl + "/services/data/" + SFAPI_VERSION + "/sobjects/Task",
-			headers: {"Authorization": "Bearer " + sessionId, "Content-Type": "application/json" },
-			data: {"Subject": subject, "OwnerId": getUserId()}
-		})
-		.then(function (reply) {
-			if(reply.errors.length == 0) {
-				// commands["Go To Created Task"] = {url: "/"+ reply.id }
-			} else
-				log(response)
-		})
-	}
-}
-var fetchTasks = ()=>{
+var fetchTasks = (oId)=>{
 log("fetch tasks")
 	return new Promise(resolve => {
 		let args = {
-			url: "https://" + apiUrl + "/services/data/" + SFAPI_VERSION + "/query/?q=SELECT+Id,+Subject,+Priority,+ActivityDate+FROM+Task+WHERE+OwnerId='" + getUserId() + "'+and+isclosed=false+order+by+" + storedOrderBy.replace(" ","+"),
-			headers: {"Authorization": "Bearer " + sessionId, "Content-Type": "application/json" }
+			url: "https://" + orgs[oId].apiUrl + "/services/data/" + SFAPI_VERSION + "/query/?q=SELECT+Id,+Subject,+Priority,+ActivityDate+FROM+Task+WHERE+OwnerId='" + orgs[oId].userId + "'+and+isclosed=false+order+by+" + storedOrderBy.replace(" ","+"),
+			headers: {"Authorization": "Bearer " + orgs[oId].sessionId, "Content-Type": "application/json" }
 		}
-		resolve(promiseHttp(args))
-	}).then(function(success) {
-		storedTasks = success.records
-		lastUpdateTimestamp = new Date
-		tryCount = 0
-	}).catch(function(error) {
-		if(tryCount < 3) {
-log(error)
-			tryCount++
-			return new Promise(resolve=>resolve(getSessionInfo)).then(fetchTasks)
-		} else {
-			chrome.tabs.sendMessage(tab.id, {action: "loadingError", error: "Error loading Salesforce Tasks"}, response => console.log("error"))	
-		}
+		resolve(
+			promiseHttp(args).then(function(success) {
+				orgs[oId].tasks = success.records
+				orgs[oId].lastUpdateTimestamp = new Date
+				tryCount = 0
+			}).catch(function(error) {
+				if(tryCount < 3) {
+					log(error)
+					tryCount++
+					return new Promise(resolve=>resolve(init)).then(fetchTasks) // this is real suspect
+				} else {
+					chrome.tabs.sendMessage(tab.id, {action: "loadingError", error: "Error loading Salesforce Tasks"}, response => console.log("error"))	
+				}
+			})
+		)
 	})
 }
-var refreshTaskList = tab=>
-	chrome.tabs.sendMessage(tab.id, {action: "refreshTaskList", tasks: storedTasks, baseUrl: apiUrl}, response => console.log(response))
-
-var completeTask = taskId=>{}
-
-var init = tab=>getSessionInfo(tab)
+var refreshTaskList = (tab, oId)=>
+	chrome.tabs.sendMessage(tab.id, {action: "refreshTaskList", tasks: orgs[oId].tasks, baseUrl: orgs[oId].apiUrl}, response => console.log(response))
 chrome.tabs.onCreated.addListener(tab=>init(tab))
+
+// var createTask = subject=>{
+// 	if(subject != "" && getUserId()) {
+// 		promiseHttp({
+// 			method: "POST",
+// 			url: "https://" + apiUrl + "/services/data/" + SFAPI_VERSION + "/sobjects/Task",
+// 			headers: {"Authorization": "Bearer " + sessionId, "Content-Type": "application/json" },
+// 			data: {"Subject": subject, "OwnerId": getUserId()}
+// 		})
+// 		.then(function (reply) {
+// 			if(reply.errors.length == 0) {
+// 				// commands["Go To Created Task"] = {url: "/"+ reply.id }
+// 			} else
+// 				log(response)
+// 		})
+// 	}
+// }
+// var completeTask = taskId=>{}
