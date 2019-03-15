@@ -48,8 +48,8 @@ li {
     list-style:none;
     border-bottom:1px solid #0002;
 }
-li a { padding:0.4rem;color:var(--secondary);display: block }
-li a:hover {background: var(--secondaryTransparent)}
+li a { padding:0.4rem;color:var(--secondary);display: block; text-decoration: none; }
+li a:hover {background: var(--secondaryTransparent); text-decoration: underline;}
 li span {float:right; padding:0 4px;color:var(--secondary);}
 /*
 #circle1 {color:var(--primary);}
@@ -59,6 +59,10 @@ li span {float:right; padding:0 4px;color:var(--secondary);}
 .priority-normal a:before,
 .priority-low a:before {width: var(--iconWidth);font-size:1rem; display: inline-block;}
 
-.priority-high a:before {content: var(--iconHigh);}
-.priority-normal a:before {content: var(--iconNormal);}
-.priority-low a:before {content: var(--iconLow);}
+.theme-base .priority-high a:before {content: var(--iconHigh);}
+.theme-base .priority-normal a:before {content: var(--iconNormal);}
+.theme-base .priority-low a:before {content: var(--iconLow);}
+
+.theme-emoji .priority-high a:before {content: "\1f632";}
+.theme-emoji .priority-normal a:before {content: "\1f642";}
+.theme-emoji .priority-low a:before {content: "\1f636";}

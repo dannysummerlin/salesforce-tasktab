@@ -2,7 +2,13 @@ const debug = false
 var log = msg=>{if(debug) console.log(msg)}
 
 var storedOrderBy = "Priority desc"
-var orgs = {},
+var orgs = { empty: { apiUrl: "/", tasks: [{
+		Id: null,
+		LoginUrl: "https://login.salesforce.com",
+		Subject: "Please login to Salesforce to load your Tasks",
+		ActivityDate: "",
+		Priority: "High"
+	}]}},
 	tryCount = 0
 const regMatchOrgId = /sid=([\w\d]+)/
 const regMatchSid = /sid=([a-zA-Z0-9\.\!]+)/
@@ -35,32 +41,36 @@ log("get session info")
 		resolve(chrome.cookies.getAll({}, all=>{
 			all.forEach((c)=>{
 				if(c.domain.includes("salesforce.com")) {
-					if(c.name == 'sid' && c.domain.includes("salesforce")) {
+					if(c.name == 'sid') {
 						orgId = c.value.match(/00D\w+/)[0]
-						if(orgs[orgId] == null) {
-							orgs[orgId] = {
-								orgId: orgId,
-								sessionId: c.value,
-								apiUrl: c.domain,
-								userId: null,
-								lastUpdateTimestamp: null,
-								tasks: []
-							}
+						delete orgs.empty
+						orgs[orgId] = {
+							orgId: orgId,
+							sessionId: c.value,
+							apiUrl: c.domain,
+							userId: null,
+							lastUpdateTimestamp: null,
+							tasks: []
 						}
 					}
 				}
 			})
-			for(oId in orgs) {
-				if(orgs[oId].userId == null)
-					promiseHttp({url: "https://" + orgs[oId].apiUrl + '/services/data/' + SFAPI_VERSION, headers:
-						{"Authorization": "Bearer " + orgs[oId].sessionId, "Accept": "application/json"}
-					}).then(response => {
-						orgs[oId].userId = response.identity.match(/005.*/)[0]
+			if(Object.keys(orgs).length > 0) {
+				for(var oId in orgs) {
+					if(orgs[oId].userId == null)
+						promiseHttp({url: "https://" + orgs[oId].apiUrl + '/services/data/' + SFAPI_VERSION, headers:
+							{"Authorization": "Bearer " + orgs[oId].sessionId, "Accept": "application/json"}
+						}).then(response => {
+							orgs[oId].userId = response.identity.match(/005.*/)[0]
+							fetchTasks(oId).then(refreshTaskList.bind(null, tab, oId))
+						}).catch(response => {
+							console.log(response)
+						})
+					else  // always fetches new right now, going to implement some kind of caching even though it runs pretty fast as is
 						fetchTasks(oId).then(refreshTaskList.bind(null, tab, oId))
-					})
-				else  // always fetches new right now, going to implement some kind of caching even though it runs pretty fast as is
-					fetchTasks(oId).then(refreshTaskList.bind(null, tab, oId))
-			}
+				}
+			} else
+				refreshTaskList(tab, "empty")
 		}))
 	})
 }
@@ -89,9 +99,18 @@ log("fetch tasks")
 	})
 }
 var refreshTaskList = (tab, oId)=>
-	chrome.tabs.sendMessage(tab.id, {action: "refreshTaskList", tasks: orgs[oId].tasks, baseUrl: orgs[oId].apiUrl}, response => console.log(response))
-chrome.tabs.onCreated.addListener(tab=>init(tab))
+	chrome.runtime.sendMessage({action: "refreshTaskList", tasks: orgs[oId].tasks, baseUrl: orgs[oId].apiUrl}, response => console.log(response))
 
+// chrome.tabs.onCreated.addListener(tab=>init(tab))
+chrome.runtime.onMessage.addListener((request, sender, sendResponse)=>{
+	switch(request.action) {
+		case 'tabOpened':
+			init(sender.tab)
+			sendResponse(sender.tab)
+			break
+	}
+	return true
+})
 // var createTask = subject=>{
 // 	if(subject != "" && getUserId()) {
 // 		promiseHttp({

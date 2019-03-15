@@ -1,6 +1,7 @@
 let baseUrl,
 	selectedTheme
 let baseTheme = {
+	name: "theme-base",
 	secondary: "rgba(27,95,158,1)",
 	secondaryTransparent: "rgba(27,95,158,0.05)",
 	primary: "rgba(176,196,223,1)",
@@ -11,6 +12,7 @@ let baseTheme = {
 	iconLow: "\25cc"
 }
 let emojiTheme = {
+	name: "theme-emoji",
 	secondary: "rgba(158,27,95,1)",
 	secondaryTransparent: "rgba(158,27,95,0.05)",
 	primary: "rgba(223,176,196,1)",
@@ -20,8 +22,10 @@ let emojiTheme = {
 	iconNormal: "\1f642",
 	iconLow: "\1f636"
 }
+document.addEventListener("DOMContentLoaded", ()=>{
+	chrome.runtime.sendMessage({action: "tabOpened"}, response => console.log(response))
+})
 chrome.runtime.onMessage.addListener((request, sender, sendResponse)=>{
-	let response = {}
 	switch(request.action) {
 		case "refreshTaskList":
 			baseUrl = request.baseUrl
@@ -36,7 +40,10 @@ let refreshTaskList = tasks=>{
 	list.innerHTML = ""
 	for (var i = 0; i < tasks.length; i++) {
 		let taskLink = document.createElement("a")
-		taskLink.setAttribute("href", "https://" + baseUrl + "/" + tasks[i].Id)
+		if(tasks[i].Id != null)
+			taskLink.setAttribute("href", "https://" + baseUrl + "/" + tasks[i].Id)
+		else
+			taskLink.setAttribute("href", tasks[i].LoginUrl)
 		taskLink.innerText = tasks[i].Subject
 		let taskDate = document.createElement("span")
 		taskDate.innerText = tasks[i].ActivityDate
@@ -59,6 +66,7 @@ let applyTheme = theme=>{
 	selectedTheme = theme
 	let root = document.documentElement
 	document.body.style.backgroundImage = theme.backgroundImage
+	document.body.className = theme.name
 	root.style.setProperty('--secondary', theme.secondary)
 	root.style.setProperty('--secondaryTransparent', theme.secondaryTransparent)
 	root.style.setProperty('--primary', theme.primary)
