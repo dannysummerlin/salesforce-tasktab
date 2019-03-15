@@ -55,7 +55,7 @@ log("get session info")
 					}
 				}
 			})
-			if(Object.keys(orgs).length > 0) {
+			if(Object.keys(orgs).length - 1 > 0) {
 				for(var oId in orgs) {
 					if(orgs[oId].userId == null)
 						promiseHttp({url: "https://" + orgs[oId].apiUrl + '/services/data/' + SFAPI_VERSION, headers:

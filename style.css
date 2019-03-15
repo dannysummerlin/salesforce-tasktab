@@ -51,10 +51,7 @@ li {
 li a { padding:0.4rem;color:var(--secondary);display: block; text-decoration: none; }
 li a:hover {background: var(--secondaryTransparent); text-decoration: underline;}
 li span {float:right; padding:0 4px;color:var(--secondary);}
-/*
-#circle1 {color:var(--primary);}
-#circle2 {color:var(--secondary);}
-*/
+
 .priority-high a:before,
 .priority-normal a:before,
 .priority-low a:before {width: var(--iconWidth);font-size:1rem; display: inline-block;}

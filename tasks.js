@@ -22,9 +22,7 @@ let emojiTheme = {
 	iconNormal: "\1f642",
 	iconLow: "\1f636"
 }
-document.addEventListener("DOMContentLoaded", ()=>{
-	chrome.runtime.sendMessage({action: "tabOpened"}, response => console.log(response))
-})
+document.addEventListener("DOMContentLoaded", ()=>chrome.runtime.sendMessage({action: "tabOpened"}, response => console.log(response)))
 chrome.runtime.onMessage.addListener((request, sender, sendResponse)=>{
 	switch(request.action) {
 		case "refreshTaskList":
@@ -35,6 +33,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse)=>{
 	}
 	return true
 })
+
 let refreshTaskList = tasks=>{
 	let list = document.getElementById("taskList")
 	list.innerHTML = ""
