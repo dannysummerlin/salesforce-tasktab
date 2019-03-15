@@ -2,10 +2,6 @@
 	--secondary: rgba(27,95,158,1);
 	--secondaryTransparent: rgba(27,95,158,0.05);
 	--primary: rgba(176,196,223,1);
-	--iconWidth: 1.2rem;
-	--iconHigh: "\235f";
-	--iconNormal: "\20dd";
-	--iconLow: "\25cc";
 }
 body {
     background: var(--primary);
@@ -44,6 +40,8 @@ body {
 #taskCount {font-size:1.8rem;margin:0;color:var(--primary);}
 #taskCount span {color:var(--secondary);}
 #lastUpdated {color:var(--primary);}
+#settingsBox {text-align: right}
+
 li {
     list-style:none;
     border-bottom:1px solid #0002;
@@ -52,14 +50,17 @@ li a { padding:0.4rem;color:var(--secondary);display: block; text-decoration: no
 li a:hover {background: var(--secondaryTransparent); text-decoration: underline;}
 li span {float:right; padding:0 4px;color:var(--secondary);}
 
-.priority-high a:before,
-.priority-normal a:before,
-.priority-low a:before {width: var(--iconWidth);font-size:1rem; display: inline-block;}
+.theme-base .priority-high a:before,
+.theme-base .priority-normal a:before,
+.theme-base .priority-low a:before {width: 1.2em;font-size:1rem; display: inline-block;}
+.theme-base .priority-high a:before {content: "\235f";}
+.theme-base .priority-normal a:before {content: "\20dd";}
+.theme-base .priority-low a:before {content: "\25cc";}
 
-.theme-base .priority-high a:before {content: var(--iconHigh);}
-.theme-base .priority-normal a:before {content: var(--iconNormal);}
-.theme-base .priority-low a:before {content: var(--iconLow);}
-
+.theme-emoji .priority-high a:before,
+.theme-emoji .priority-normal a:before,
+.theme-emoji .priority-low a:before {width: 1.6em;font-size:1rem; display: inline-block;}
 .theme-emoji .priority-high a:before {content: "\1f632";}
 .theme-emoji .priority-normal a:before {content: "\1f642";}
 .theme-emoji .priority-low a:before {content: "\1f636";}
+.theme-emoji circle {stroke: #bd2e698c;}

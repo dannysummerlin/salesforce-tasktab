@@ -1,33 +1,24 @@
-let baseUrl,
-	selectedTheme = "base"
+let baseUrl
 let themes = {
 	base: {
 		name: "theme-base",
 		secondary: "rgba(27,95,158,1)",
 		secondaryTransparent: "rgba(27,95,158,0.05)",
 		primary: "rgba(176,196,223,1)",
-		backgroundImage: "linear-gradient(0deg, rgba(176,196,223,1) 70%, rgba(27,95,158,1) 100%)",
-		iconWidth: "1.2rem",
-		iconHigh: "\235f",
-		iconNormal: "\20dd",
-		iconLow: "\25cc"
+		backgroundImage: "linear-gradient(0deg, rgba(176,196,223,1) 70%, rgba(27,95,158,1) 100%)"
 	},
 	emoji: {
 		name: "theme-emoji",
 		secondary: "rgba(158,27,95,1)",
 		secondaryTransparent: "rgba(158,27,95,0.05)",
 		primary: "rgba(223,176,196,1)",
-		backgroundImage: "linear-gradient(0deg, rgba(223,176,196,1) 70%, rgba(158,27,95,1) 100%)",
-		iconWidth: "1.6rem",
-		iconHigh: "\1f632",
-		iconNormal: "\1f642",
-		iconLow: "\1f636"
+		backgroundImage: "linear-gradient(0deg, rgba(223,176,196,1) 70%, rgba(158,27,95,1) 100%)"
 	}
 }
 document.addEventListener("DOMContentLoaded", ()=>{
 	chrome.runtime.sendMessage({action: "tabOpened"}, response =>{})
 	document.getElementById("storedTheme").addEventListener("change", e=>{
-		applyTheme(e.target.value)
+		chrome.runtime.sendMessage({action: "saveTheme", theme: e.target.value}, response =>{ applyTheme(response.theme) })
 	})
 })
 chrome.runtime.onMessage.addListener((request, sender, sendResponse)=>{
@@ -35,9 +26,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse)=>{
 		case "refreshTaskList":
 			baseUrl = request.baseUrl
 			refreshTaskList(request.tasks)
-			sendResponse(new Date)
+			break
+		case 'applyTheme':
+			document.getElementById('storedTheme').value = request.theme
+			applyTheme(request.theme)
 			break
 	}
+	sendResponse(new Date)
 	return true
 })
 
@@ -60,7 +55,6 @@ let refreshTaskList = tasks=>{
 		list.appendChild(listItem)
 	}
 	document.getElementById("loader").style.display = "none"
-	applyTheme(selectedTheme)
 	let taskCount = document.getElementById('taskCount')
 	taskCount.innerHTML = "<span>" + tasks.length + "</span> Open Tasks"
 	let lastUpdated = document.getElementById("lastUpdated")
@@ -69,7 +63,6 @@ let refreshTaskList = tasks=>{
 	document.getElementById("infoBox").style.opacity = 1
 }
 let applyTheme = themeName=>{
-	selectedTheme = themeName
 	theme = themes[themeName]
 	let root = document.documentElement
 	document.body.style.backgroundImage = theme.backgroundImage
@@ -78,8 +71,4 @@ let applyTheme = themeName=>{
 	root.style.setProperty('--secondaryTransparent', theme.secondaryTransparent)
 	root.style.setProperty('--primary', theme.primary)
 	root.style.setProperty('--backgroundImage', theme.backgroundImage)
-	root.style.setProperty('--iconWidth', theme.iconWidth)
-	// root.style.setProperty('--iconHigh', theme.iconHigh)
-	// root.style.setProperty('--iconNormal', theme.iconNormal)
-	// root.style.setProperty('--iconLow', theme.iconLow)
 }

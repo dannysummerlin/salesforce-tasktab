@@ -38,12 +38,12 @@ log(args.method + ": " + args.url)
 var init = tab=>{
 log("get session info")
 	return new Promise(resolve => {
+		applyTheme()
 		resolve(chrome.cookies.getAll({}, all=>{
 			all.forEach((c)=>{
 				if(c.domain.includes("salesforce.com")) {
 					if(c.name == 'sid') {
 						orgId = c.value.match(/00D\w+/)[0]
-						delete orgs.empty
 						orgs[orgId] = {
 							orgId: orgId,
 							sessionId: c.value,
@@ -56,6 +56,7 @@ log("get session info")
 				}
 			})
 			if(Object.keys(orgs).length - 1 > 0) {
+				delete orgs.empty
 				for(var oId in orgs) {
 					if(orgs[oId].userId == null)
 						promiseHttp({url: "https://" + orgs[oId].apiUrl + '/services/data/' + SFAPI_VERSION, headers:
@@ -91,13 +92,17 @@ log("fetch tasks")
 					log(error)
 					tryCount++
 					return new Promise(resolve=>resolve(init)).then(fetchTasks) // this is real suspect
-				} else {
-					chrome.tabs.sendMessage(tab.id, {action: "loadingError", error: "Error loading Salesforce Tasks"}, response => console.log("error"))	
-				}
+				} else
+					chrome.tabs.sendMessage(tab.id, {action: "loadingError", error: "Error loading Salesforce Tasks"}, response => log(response))
 			})
 		)
 	})
 }
+var applyTheme = ()=>chrome.storage.sync.get(['theme'], (result)=>{
+	theme = result.theme == null ? "base" : result.theme
+	chrome.runtime.sendMessage({action: "applyTheme", theme: theme}, response => log(response))
+})
+
 var refreshTaskList = (tab, oId)=>
 	chrome.runtime.sendMessage({action: "refreshTaskList", tasks: orgs[oId].tasks, baseUrl: orgs[oId].apiUrl}, response => log(response))
 
@@ -106,6 +111,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse)=>{
 		case 'tabOpened':
 			init(sender.tab)
 			sendResponse(sender.tab)
+			break
+		case 'saveTheme':
+			chrome.storage.sync.set({theme: request.theme}, ()=>{})
+			sendResponse(request)
 			break
 	}
 	return true
