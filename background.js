@@ -64,7 +64,7 @@ log("get session info")
 							orgs[oId].userId = response.identity.match(/005.*/)[0]
 							fetchTasks(oId).then(refreshTaskList.bind(null, tab, oId))
 						}).catch(response => {
-							console.log(response)
+							log(response)
 						})
 					else  // always fetches new right now, going to implement some kind of caching even though it runs pretty fast as is
 						fetchTasks(oId).then(refreshTaskList.bind(null, tab, oId))
@@ -99,9 +99,8 @@ log("fetch tasks")
 	})
 }
 var refreshTaskList = (tab, oId)=>
-	chrome.runtime.sendMessage({action: "refreshTaskList", tasks: orgs[oId].tasks, baseUrl: orgs[oId].apiUrl}, response => console.log(response))
+	chrome.runtime.sendMessage({action: "refreshTaskList", tasks: orgs[oId].tasks, baseUrl: orgs[oId].apiUrl}, response => log(response))
 
-// chrome.tabs.onCreated.addListener(tab=>init(tab))
 chrome.runtime.onMessage.addListener((request, sender, sendResponse)=>{
 	switch(request.action) {
 		case 'tabOpened':

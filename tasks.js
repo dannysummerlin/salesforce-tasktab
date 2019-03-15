@@ -1,28 +1,35 @@
 let baseUrl,
-	selectedTheme
-let baseTheme = {
-	name: "theme-base",
-	secondary: "rgba(27,95,158,1)",
-	secondaryTransparent: "rgba(27,95,158,0.05)",
-	primary: "rgba(176,196,223,1)",
-	backgroundImage: "linear-gradient(0deg, rgba(176,196,223,1) 70%, rgba(27,95,158,1) 100%)",
-	iconWidth: "1.2rem",
-	iconHigh: "\235f",
-	iconNormal: "\20dd",
-	iconLow: "\25cc"
+	selectedTheme = "base"
+let themes = {
+	base: {
+		name: "theme-base",
+		secondary: "rgba(27,95,158,1)",
+		secondaryTransparent: "rgba(27,95,158,0.05)",
+		primary: "rgba(176,196,223,1)",
+		backgroundImage: "linear-gradient(0deg, rgba(176,196,223,1) 70%, rgba(27,95,158,1) 100%)",
+		iconWidth: "1.2rem",
+		iconHigh: "\235f",
+		iconNormal: "\20dd",
+		iconLow: "\25cc"
+	},
+	emoji: {
+		name: "theme-emoji",
+		secondary: "rgba(158,27,95,1)",
+		secondaryTransparent: "rgba(158,27,95,0.05)",
+		primary: "rgba(223,176,196,1)",
+		backgroundImage: "linear-gradient(0deg, rgba(223,176,196,1) 70%, rgba(158,27,95,1) 100%)",
+		iconWidth: "1.6rem",
+		iconHigh: "\1f632",
+		iconNormal: "\1f642",
+		iconLow: "\1f636"
+	}
 }
-let emojiTheme = {
-	name: "theme-emoji",
-	secondary: "rgba(158,27,95,1)",
-	secondaryTransparent: "rgba(158,27,95,0.05)",
-	primary: "rgba(223,176,196,1)",
-	backgroundImage: "linear-gradient(0deg, rgba(223,176,196,1) 70%, rgba(158,27,95,1) 100%)",
-	iconWidth: "1.6rem",
-	iconHigh: "\1f632",
-	iconNormal: "\1f642",
-	iconLow: "\1f636"
-}
-document.addEventListener("DOMContentLoaded", ()=>chrome.runtime.sendMessage({action: "tabOpened"}, response => console.log(response)))
+document.addEventListener("DOMContentLoaded", ()=>{
+	chrome.runtime.sendMessage({action: "tabOpened"}, response =>{})
+	document.getElementById("storedTheme").addEventListener("change", e=>{
+		applyTheme(e.target.value)
+	})
+})
 chrome.runtime.onMessage.addListener((request, sender, sendResponse)=>{
 	switch(request.action) {
 		case "refreshTaskList":
@@ -53,7 +60,7 @@ let refreshTaskList = tasks=>{
 		list.appendChild(listItem)
 	}
 	document.getElementById("loader").style.display = "none"
-	applyTheme(baseTheme)
+	applyTheme(selectedTheme)
 	let taskCount = document.getElementById('taskCount')
 	taskCount.innerHTML = "<span>" + tasks.length + "</span> Open Tasks"
 	let lastUpdated = document.getElementById("lastUpdated")
@@ -61,8 +68,9 @@ let refreshTaskList = tasks=>{
 	taskList.style.opacity = 1
 	document.getElementById("infoBox").style.opacity = 1
 }
-let applyTheme = theme=>{
-	selectedTheme = theme
+let applyTheme = themeName=>{
+	selectedTheme = themeName
+	theme = themes[themeName]
 	let root = document.documentElement
 	document.body.style.backgroundImage = theme.backgroundImage
 	document.body.className = theme.name
