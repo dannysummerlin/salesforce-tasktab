@@ -18,7 +18,7 @@ let themes = {
 document.addEventListener("DOMContentLoaded", ()=>{
 	chrome.runtime.sendMessage({action: "tabOpened"}, response =>{})
 	document.getElementById("storedTheme").addEventListener("change", e=>{
-		chrome.runtime.sendMessage({action: "saveTheme", theme: e.target.value}, response =>{ applyTheme(response.theme) })
+		chrome.runtime.sendMessage({action: "saveTheme", theme: e.target.value}, response =>{})
 	})
 	document.getElementById("refreshButton").addEventListener("click", e=>{
 		chrome.runtime.sendMessage({action: "refreshTaskList"}, response =>{})

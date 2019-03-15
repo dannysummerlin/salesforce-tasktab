@@ -44,7 +44,7 @@ log("get session info")
 				if(c.domain.includes("salesforce.com")) {
 					if(c.name == 'sid') {
 						orgId = c.value.match(/00D\w+/)[0]
-						if(!Object.keys(orgs).includes(orgId) || orgs[orgId].sessionId == c.value)
+						if(!Object.keys(orgs).includes(orgId) || orgs[orgId].sessionId != c.value)
 							orgs[orgId] = {
 								orgId: orgId,
 								sessionId: c.value,
@@ -117,7 +117,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse)=>{
 			init()
 			break
 		case 'saveTheme':
-			chrome.storage.sync.set({theme: request.theme}, ()=>{})
+			chrome.storage.sync.set({theme: request.theme}, ()=>{ applyTheme() })
 			break
 	}
 	sendResponse(request)
