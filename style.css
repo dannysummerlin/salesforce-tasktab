@@ -4,6 +4,7 @@
 	--primary: rgba(176,196,223,1);
 }
 html {
+	font-family: 'Salesforce Sans',Arial,sans-serif;
 	min-height:500px;
 	min-width: 700px;
 }
