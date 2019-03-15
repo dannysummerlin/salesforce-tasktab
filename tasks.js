@@ -20,6 +20,11 @@ document.addEventListener("DOMContentLoaded", ()=>{
 	document.getElementById("storedTheme").addEventListener("change", e=>{
 		chrome.runtime.sendMessage({action: "saveTheme", theme: e.target.value}, response =>{ applyTheme(response.theme) })
 	})
+	document.getElementById("refreshButton").addEventListener("click", e=>{
+		chrome.runtime.sendMessage({action: "refreshTaskList"}, response =>{})
+		document.getElementById("loader").style.display = "block"
+		taskList.style.opacity = 0
+	})
 })
 chrome.runtime.onMessage.addListener((request, sender, sendResponse)=>{
 	switch(request.action) {
