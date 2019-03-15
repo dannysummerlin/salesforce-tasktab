@@ -3,7 +3,13 @@
 	--secondaryTransparent: rgba(27,95,158,0.05);
 	--primary: rgba(176,196,223,1);
 }
+html {
+	min-height:500px;
+	min-width: 700px;
+}
 body {
+	min-height: 500px;
+	min-width: 700px;
     background: var(--primary);
     transition-property: backgroundImage;
 	transition-duration: .2s;

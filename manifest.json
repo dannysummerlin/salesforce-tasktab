@@ -1,7 +1,8 @@
 {
 	"manifest_version": 2,
 	"name": "Salesforce TaskTab",
-	"version": "1.0.0",
+	"short_name": "SF-TaskTab",
+	"version": "1.6.1",
 	"description": "Track your Salesforce tasks on your New tab!",
 	"background": {
 		"scripts": ["background.js"],
@@ -27,13 +28,5 @@
 	},
 	 "chrome_url_overrides" : {
 		"newtab": "tasks.html"
-	},
-	"commands": {
-		"_execute_browser_action": {
-			"description": "Open the Salesforce Task popup",
-			"suggested_key": {
-				"default": "Alt+Shift+T"
-			}
-		}
 	}
 }

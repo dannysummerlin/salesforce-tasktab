@@ -26,6 +26,9 @@ document.addEventListener("DOMContentLoaded", ()=>{
 		taskList.style.opacity = 0
 	})
 })
+// chrome.browserAction.onClicked.addListener(tab=>{
+//	chrome.tabs.executeScript(tab.id, {code: "document.getElementsByTagName"})
+// })
 chrome.runtime.onMessage.addListener((request, sender, sendResponse)=>{
 	switch(request.action) {
 		case "refreshTaskList":
