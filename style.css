@@ -2,59 +2,28 @@
 	--secondary: rgba(27,95,158,1);
 	--secondaryTransparent: rgba(27,95,158,0.05);
 	--primary: rgba(176,196,223,1);
+	--primaryTransparent: rgba(176,196,223,0.5);
 }
-html {
-	min-height:500px;
-	min-width: 700px;
-}
-body {
-	min-height: 500px;
-	min-width: 700px;
-    background: var(--primary);
-    transition-property: backgroundImage;
-	transition-duration: .2s;
-	background-repeat: no-repeat;
-}
-#wrapper {
-	width:90%;
-	margin:1rem auto;
-	display:flex;
-	flex-flow: row wrap;
-}
-#wrapper:before {content: "\2601"; font-size:10rem;margin-right:-1rem;margin-left:-4rem;color:var(--primary);}
-#infoBox, #taskList {
-    border-radius: .25rem;
-    background:white;
-	opacity: 0;
-	transition-property: opacity;
-	transition-duration: .2s;
-	margin:0;
-}
-#infoBox {
-	text-align: center;
-	height:100%;
-	padding: 1rem;
-	margin-left: 1rem;
-	flex:1 0;
-}
-#taskList {
-	flex: 5 0;
-	font-size:1.1rem;
-	line-height:1.6rem;
-	padding: 0;
-}
+html { min-height:500px; min-width: 700px; }
+body { min-height: 500px; min-width: 700px; background: var(--primary); transition-property: backgroundImage; transition-duration: .2s; background-repeat: no-repeat; }
+#wrapper { width:90%; margin:1rem auto; display:flex; flex-flow: row wrap; }
+#wrapper:before {content: "\2601"; font-size:10rem;margin-right:-1rem;margin-left:-4rem;color:var(--primaryTransparent);}
+#infoBox, #taskList { border-radius: .25rem; background:white; opacity: 0; transition-property: opacity; transition-duration: .2s; margin:0; }
+#infoBox { text-align: center; height:100%; padding: 1rem; margin-left: 1rem; flex:1 0; }
+#taskList { flex: 5 0; font-size:1.1rem; line-height:1.6rem; padding: 0; }
 #taskCount {font-size:1.8rem;margin:0;color:var(--primary);}
 #taskCount span {color:var(--secondary);}
 #lastUpdated {color:var(--primary);}
 #settingsBox {text-align: right}
+#refreshButton {background: transparent;color: var(--primary);border:0;font-size:3rem;}
+#refreshButton:hover {color:var(--secondary);}
+select { background: transparent;color: var(--secondary); text-align: center;border:0;}
+form ul { margin: 0 auto;padding: 0; }
 
-li {
-    list-style:none;
-    border-bottom:1px solid #0002;
-}
+li { list-style:none; border-bottom:1px solid #0002; }
 li a { padding:0.4rem;color:var(--secondary);display: block; text-decoration: none; }
 li a:hover {background: var(--secondaryTransparent); text-decoration: underline;}
-li span {float:right; padding:0 4px;color:var(--secondary);}
+li span {float:right; padding:0 4px;color:var(--primary);}
 
 .theme-base .priority-high a:before,
 .theme-base .priority-normal a:before,
@@ -63,6 +32,7 @@ li span {float:right; padding:0 4px;color:var(--secondary);}
 .theme-base .priority-normal a:before {content: "\20dd";}
 .theme-base .priority-low a:before {content: "\25cc";}
 
+.theme-emoji {font-family: "Comic Sans MS", cursive, sans-serif}
 .theme-emoji .priority-high a:before,
 .theme-emoji .priority-normal a:before,
 .theme-emoji .priority-low a:before {width: 1.6em;font-size:1rem; display: inline-block;}
@@ -70,3 +40,24 @@ li span {float:right; padding:0 4px;color:var(--secondary);}
 .theme-emoji .priority-normal a:before {content: "\1f642";}
 .theme-emoji .priority-low a:before {content: "\1f636";}
 .theme-emoji circle {stroke: #bd2e698c;}
+
+.theme-terminal {font-family: monospace;}
+.theme-terminal #taskList,
+.theme-terminal #infoBox {background: transparent; color:var(--primary);}
+.theme-terminal .priority-high a:before,
+.theme-terminal .priority-normal a:before,
+.theme-terminal .priority-low a:before {width: 1.6em;font-size:1rem; display: inline-block;}
+.theme-terminal .priority-high a:before {content: "#!";}
+.theme-terminal .priority-normal a:before {content: ">";}
+.theme-terminal .priority-low a:before {content: "~";}
+.theme-terminal circle {stroke: #0e0;}
+
+.theme-simple #taskList,
+.theme-simple #infoBox {background: transparent; color:var(--primary);font-size:1.2rem;}
+.theme-simple .priority-high a:before,
+.theme-simple .priority-normal a:before,
+.theme-simple .priority-low a:before {width: 1.6rem; display: inline-block;}
+.theme-simple .priority-high a:before {content: "\1f792";}
+.theme-simple .priority-normal a:before {content: "\25fb";}
+.theme-simple .priority-low a:before {content: "\2b1a";}
+.theme-simple circle {stroke: #eee;}
