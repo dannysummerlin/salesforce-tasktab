@@ -4,6 +4,9 @@ document.addEventListener("DOMContentLoaded", ()=>{
 	document.getElementById("storedTheme").addEventListener("change", e=>{
 		chrome.runtime.sendMessage({action: "saveTheme", theme: e.target.value}, response =>{})
 	})
+	document.getElementById("storedLimit").addEventListener("change", e=>{
+		chrome.runtime.sendMessage({action: "saveLimit", limit: e.target.value}, response =>{})
+	})
 	document.getElementById("refreshButton").addEventListener("click", e=>{
 		chrome.runtime.sendMessage({action: "refreshTaskList"}, response =>{})
 		document.getElementById("loader").style.display = "block"
@@ -22,6 +25,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse)=>{
 		case 'applyTheme':
 			document.getElementById('storedTheme').value = request.theme
 			applyTheme(request.theme)
+			break
+		case 'applyLimit':
+			document.getElementById('storedLimit').value = request.limit
 			break
 	}
 	sendResponse(new Date)
@@ -48,7 +54,7 @@ let refreshTaskList = tasks=>{
 	}
 	document.getElementById("loader").style.display = "none"
 	let taskCount = document.getElementById('taskCount')
-	taskCount.innerHTML = "<span>" + tasks.length + "</span> Open Tasks"
+	taskCount.innerHTML = "<span>" + tasks.length + "</span> Open Tasks" + (tasks.length == taskLimit ? "<small style='display:block;padding-top:4px;font-size:11px'><em>limited to "+taskLimit+"</em></small>" : '')
 	let lastUpdated = document.getElementById("lastUpdated")
 	lastUpdated.innerText = "Last Update: " + (new Date).toLocaleString()
 	taskList.style.opacity = 1
