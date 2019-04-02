@@ -2,6 +2,7 @@
 <html>
 <head>
 	<title>Salesforce TaskTab</title>
+	<script type="text/javascript" src="shared.js"></script>
 	<script type="text/javascript" src="tasks.js"></script>
 	<link rel="stylesheet" type="text/css" href="style.css"/>
 </head>
@@ -19,6 +20,16 @@
 				<summary>Settings</summary>
 				<form>
 					<ul>
+ 						<li style="display:none">
+							<label for="storedLimit">Task Limit</label>
+							<select id="storedLimit" name="storedLimit">
+								<option value="10">10</option>
+								<option value="20">20</option>
+								<option value="30">30</option>
+								<option value="40">40</option>
+								<option value="50">50</option>
+							</select>
+						</li>
 						<li>
 							<label for="storedTheme">Tab Theme</label>
 							<select id="storedTheme" name="storedTheme">

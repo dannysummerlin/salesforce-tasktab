@@ -84,7 +84,8 @@ var fetchTasks = (oId)=>{
 log("fetch tasks")
 	return new Promise(resolve => {
 		let args = {
-			url: "https://" + orgs[oId].apiUrl + "/services/data/" + SFAPI_VERSION + "/query/?q=SELECT+Id,+Subject,+Priority,+ActivityDate+FROM+Task+WHERE+OwnerId='" + orgs[oId].userId + "'+and+isclosed=false+order+by+" + storedOrderBy.replace(" ","+"),
+			url: "https://" + orgs[oId].apiUrl + "/services/data/" + SFAPI_VERSION + "/query/?q=SELECT+Id,+Subject,+Priority,+ActivityDate+FROM+Task+WHERE+OwnerId='"
+				+ orgs[oId].userId + "'+and+isclosed=false+order+by+" + storedOrderBy.replace(" ","+") + "+limit+" + taskLimit,
 			headers: {"Authorization": "Bearer " + orgs[oId].sessionId, "Content-Type": "application/json" }
 		}
 		resolve(
@@ -107,6 +108,10 @@ var applyTheme = ()=>chrome.storage.sync.get(['theme'], (result)=>{
 	theme = result.theme == null ? "base" : result.theme
 	chrome.runtime.sendMessage({action: "applyTheme", theme: theme}, response => log(response))
 })
+var applyLimit = ()=>chrome.storage.sync.get(['limit'], (result)=>{
+	limit = result.limit == null ? 30 : result.limit
+	chrome.runtime.sendMessage({action: "applyLimit", limit: limit}, response => log(response))
+})
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse)=>{
 	switch(request.action) {
@@ -118,6 +123,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse)=>{
 			break
 		case 'saveTheme':
 			chrome.storage.sync.set({theme: request.theme}, ()=>{ applyTheme() })
+			break
+		case 'saveLimit':
+			chrome.storage.sync.set({limit: request.limit}, ()=>{ applyLimit() })
 			break
 	}
 	sendResponse(request)
