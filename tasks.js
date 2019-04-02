@@ -1,20 +1,4 @@
 let baseUrl
-let themes = {
-	base: {
-		name: "theme-base",
-		secondary: "rgba(27,95,158,1)",
-		secondaryTransparent: "rgba(27,95,158,0.05)",
-		primary: "rgba(176,196,223,1)",
-		backgroundImage: "linear-gradient(0deg, rgba(176,196,223,1) 70%, rgba(27,95,158,1) 100%)"
-	},
-	emoji: {
-		name: "theme-emoji",
-		secondary: "rgba(158,27,95,1)",
-		secondaryTransparent: "rgba(158,27,95,0.05)",
-		primary: "rgba(223,176,196,1)",
-		backgroundImage: "linear-gradient(0deg, rgba(223,176,196,1) 70%, rgba(158,27,95,1) 100%)"
-	}
-}
 document.addEventListener("DOMContentLoaded", ()=>{
 	chrome.runtime.sendMessage({action: "tabOpened"}, response =>{})
 	document.getElementById("storedTheme").addEventListener("change", e=>{
@@ -75,8 +59,9 @@ let applyTheme = themeName=>{
 	let root = document.documentElement
 	document.body.style.backgroundImage = theme.backgroundImage
 	document.body.className = theme.name
+	root.style.setProperty('--primary', theme.primary)
+	root.style.setProperty('--primaryTransparent', theme.primaryTransparent)
 	root.style.setProperty('--secondary', theme.secondary)
 	root.style.setProperty('--secondaryTransparent', theme.secondaryTransparent)
-	root.style.setProperty('--primary', theme.primary)
 	root.style.setProperty('--backgroundImage', theme.backgroundImage)
 }
