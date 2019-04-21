@@ -2,7 +2,7 @@
 	"manifest_version": 2,
 	"name": "Salesforce TaskTab",
 	"short_name": "SF-TaskTab",
-	"version": "1.7.3",
+	"version": "1.7.7",
 	"description": "Track your Salesforce tasks on your New tab!",
 	"background": {
 		"scripts": ["shared.js", "background.js"],
