@@ -1,7 +1,7 @@
 const debug = false
 var log = msg=>{if(debug) console.log(msg)}
 
-var storedOrderBy = "Priority desc"
+var storedOrderBy = "ActivityDate desc nulls last, Priority desc"
 var orgs = { empty: { apiUrl: "/", tasks: [{
 		Id: null,
 		LoginUrl: "https://login.salesforce.com",

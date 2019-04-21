@@ -14,8 +14,8 @@ document.addEventListener("DOMContentLoaded", ()=>{
 	})
 })
 // chrome.browserAction.onClicked.addListener(tab=>{
-//	chrome.tabs.executeScript(tab.id, {code: "document.getElementsByTagName"})
-// })
+	//	chrome.tabs.executeScript(tab.id, {code: "document.getElementsByTagName"})
+	// })
 chrome.runtime.onMessage.addListener((request, sender, sendResponse)=>{
 	switch(request.action) {
 		case "refreshTaskList":
@@ -54,6 +54,7 @@ let refreshTaskList = tasks=>{
 	}
 	document.getElementById("loader").style.display = "none"
 	let taskCount = document.getElementById('taskCount')
+	document.getElementById("allTasks").setAttribute("href", "https://" + baseUrl + "/00T")
 	taskCount.innerHTML = "<span>" + tasks.length + "</span> Open Tasks" + (tasks.length == taskLimit ? "<small style='display:block;padding-top:4px;font-size:11px'><em>limited to "+taskLimit+"</em></small>" : '')
 	let lastUpdated = document.getElementById("lastUpdated")
 	lastUpdated.innerText = "Last Update: " + (new Date).toLocaleString()

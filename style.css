@@ -13,7 +13,9 @@ body { min-height: 500px; min-width: 700px; background: var(--primary); transiti
 #taskList { flex: 5 0; font-size:1.1rem; line-height:1.6rem; padding: 0; }
 #taskCount {font-size:1.8rem;margin:0;color:var(--primary);}
 #taskCount span {color:var(--secondary);}
-#lastUpdated {color:var(--primary);}
+#lastUpdated, #allTasks {color:var(--primary);}
+#allTasks {font-size:14px;text-align: right;display: block;}
+#allTasks div {float:right;font-size:24px;margin:4px 0 0 8px}
 #settingsBox {text-align: right}
 #refreshButton {background: transparent;color: var(--primary);border:0;font-size:3rem;}
 #refreshButton:hover {color:var(--secondary);}
